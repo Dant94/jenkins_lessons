@@ -20,10 +20,10 @@ pipeline {
     }
     post {
         always {
-            sh 'I print it always'
+            echo 'I print it always'
         }
         success {
-            sh 'I print in only when success'
+            echo 'I print in only when success'
         }
     }
 }
