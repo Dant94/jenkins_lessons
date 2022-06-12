@@ -1,0 +1,12 @@
+docker network create jenkins
+
+docker run --name jenkins-docker --rm --detach --privileged --network jenkins --network-alias docker --env DOCKER_TLS_CERTDIR=/certs --volume jenkins-docker-certs:/certs/client --volume jenkins-data:/var/jenkins_home --publish 2376:2376 docker:dind
+
+
+docker build -t myjenkins-blueocean:2.332.3-1 .
+
+docker run --name jenkins-blueocean --restart=on-failure --detach --network jenkins --env DOCKER_HOST=tcp://docker:2376 --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 --volume jenkins-data:/var/jenkins_home --volume jenkins-docker-certs:/certs/client:ro --publish 8080:8080 --publish 50000:50000 myjenkins-blueocean:2.332.3-1
+
+docker logs jenkins-blueocean
+
+docker run -d --rm --name=agent1 --network jenkins -p 22:22 -e "JENKINS_AGENT_SSH_PUBKEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDHqx1jQ4dBB31PChfmmwLReGwJsgVYe7210+RKphc9a+U31bbL5TJPG5d3ycMJ5WYYlygw5Lf4vrU7dtgMS4P4Vv8ts7/TSnwLZT6NBeg14s3lnWGXVl8QGdI/viuRo7t1veAUE7qy/lqBj7Ijs/DEi8Pk5hzVpwdLNGa28WH2NKcghUbCN95Ah+WDtaSNUZjgfkfNuCnaWKyOPhfR0d5hSM6/Tbac0g6MgQkEBLK3Y/FqTOl4I8XtVYdz0WlgyhJT7EGrvVIwzInWONCZv8C4N3Ml3URdzAjalAEXqBF+BXt+v9mCrQcmivOhInNgbwkArchDJOVtrK9TNYbo4r+k5jR1DWAsY4J05k9Ru0YXmp2IxKTYEyyTJOu/beiRurOZbowz1HPBh59Mg6bkDe1G2qqMmJekZjs7EgY1/8rtzZZiX6MXl9iA7HgIHM8yPJB+XOH/CtvQr9JilEvodNrC9GBru6HkVNrYCkKpHBBppJR2DPVqBSJBGhnQJ5ARMjM= antim@LAPTOP-C6U0SI67" jenkins/ssh-agent:jdk11
